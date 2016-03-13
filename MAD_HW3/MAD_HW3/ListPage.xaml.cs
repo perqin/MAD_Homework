@@ -18,24 +18,13 @@ namespace MAD_HW3
             this.InitializeComponent();
 
             TodoVM = TodoViewModel.getInstance();
-
-            // TO BE DELETED
-            TodoVM.addTodo(new Todo { Title = "Title1", Done = true });
-            TodoVM.addTodo(new Todo { Title = "Title2", Done = true });
-            TodoVM.addTodo(new Todo { Title = "Title3", Done = false });
-            TodoVM.addTodo(new Todo { Title = "Title4", Done = true });
-
-
-        }
-
-        private void FFFk(object sender, RoutedEventArgs e)
-        {
-            // CheckBox Click
         }
 
         private void TodoListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Debug.WriteLine("TodoListView_SelectionChanged");
+            Frame rootFrame = Window.Current.Content as Frame;
+            MainPage mainPage = rootFrame.Content as MainPage;
+            mainPage.OnSelectionChanged(TodoListView.SelectedIndex);
         }
 
         private void TodoListView_ItemClick(object sender, ItemClickEventArgs e)
@@ -43,6 +32,11 @@ namespace MAD_HW3
             Frame rootFrame = Window.Current.Content as Frame;
             MainPage mainPage = rootFrame.Content as MainPage;
             mainPage.OnTodoItemClick(sender, e);
+        }
+
+        public void setSelected(int i)
+        {
+            TodoListView.SelectedIndex = i;
         }
     }
 }

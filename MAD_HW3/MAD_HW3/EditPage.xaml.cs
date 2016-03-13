@@ -1,6 +1,10 @@
-﻿using Windows.UI.Xaml.Controls;
-
-using MAD_HW3.ViewModels;
+﻿using MAD_HW3.ViewModels;
+using System;
+using Windows.Storage.Pickers;
+using Windows.Storage;
+using Windows.Storage.Streams;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace MAD_HW3
 {
@@ -11,6 +15,14 @@ namespace MAD_HW3
     {
         private TodoViewModel TodoVM;
         private Todo displayTodo = new Todo();
+
+        public Todo DisplayTodo
+        {
+            get
+            {
+                return displayTodo;
+            }
+        }
 
         public EditPage()
         {
@@ -29,9 +41,30 @@ namespace MAD_HW3
             //RefreshView();
         }
 
+        private async void SelectCoverButton_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+            FileOpenPicker picker = new FileOpenPicker();
+            picker.ViewMode = PickerViewMode.Thumbnail;
+            picker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
+            picker.FileTypeFilter.Add(".bmp");
+            picker.FileTypeFilter.Add(".jpeg");
+            picker.FileTypeFilter.Add(".jpg");
+            picker.FileTypeFilter.Add(".png");
+            StorageFile file = await picker.PickSingleFileAsync();
+            if (file != null)
+            {
+                using (IRandomAccessStream fileStream = await file.OpenAsync(FileAccessMode.Read))
+                {
+                    BitmapImage bitmapImage = new BitmapImage();
+                    await bitmapImage.SetSourceAsync(fileStream);
+                    displayTodo.CoverSource = bitmapImage;
+                }
+            }
+        }
+
         //private void RefreshView()
         //{
-            //
+        //
         //}
     }
 }

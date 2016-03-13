@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
+using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace MAD_HW3.ViewModels
 {
@@ -13,7 +14,7 @@ namespace MAD_HW3.ViewModels
         private string title;
         private string detail;
         private DateTime dueDate;
-        private string coverSource;
+        private ImageSource coverSource;
         private bool? done;
 
         public string Title {
@@ -51,7 +52,7 @@ namespace MAD_HW3.ViewModels
                 OnPropertyChanged();
             }
         }
-        public string CoverSource {
+        public ImageSource CoverSource {
             get {
                 return coverSource;
             }
@@ -72,11 +73,19 @@ namespace MAD_HW3.ViewModels
             }
         }
 
+        public Todo()
+        {
+            title = "New Todo";
+            detail = "Detail here...";
+            done = false;
+            coverSource = new BitmapImage(new Uri("ms-appx://MAD_HW3/Assets/default.png"));
+            dueDate = DateTime.Today;
+        }
+
         public event PropertyChangedEventHandler PropertyChanged = delegate { };
 
         public void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            Debug.WriteLine("Property " + propertyName + " Changed!");
             PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
         }
     }
@@ -135,6 +144,19 @@ namespace MAD_HW3.ViewModels
         {
             var v = value as Visibility?;
             return v == null ? (object)null : v.Value == Visibility.Visible;
+        }
+    }
+
+    public class DateTimeToOffsetConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            return (DateTimeOffset)((value as DateTime?) ?? DateTime.Today);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            return ((value as DateTimeOffset?) ?? DateTimeOffset.Now).DateTime;
         }
     }
 }
