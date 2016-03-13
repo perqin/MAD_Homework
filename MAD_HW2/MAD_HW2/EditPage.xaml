@@ -1,0 +1,131 @@
+﻿<Page
+    x:Class="MAD_HW2.EditPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:MAD_HW2"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+    <Page.BottomAppBar>
+        <CommandBar>
+            <CommandBar.Content>
+                <Grid/>
+            </CommandBar.Content>
+            <AppBarButton
+                x:Name="AcceptButton"
+                Icon="Accept"
+                Label="Add"
+                Click="AcceptButton_Click"/>
+            <AppBarButton
+                x:Name="ClearButton"
+                Icon="Clear"
+                Label="Clear"
+                Click="ClearButton_Click"/>
+        </CommandBar>
+    </Page.BottomAppBar>
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup
+                x:Name="AdaptiveVisualStateGroup">
+                <VisualState
+                    x:Name="Mobile">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger
+                            MinWindowWidth="0"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter
+                            Target="FormLeftColumnDefinition.Width"
+                            Value="4"/>
+                        <Setter
+                            Target="FormRightColumnDefinition.Width"
+                            Value="4"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState
+                    x:Name="Tablet">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger
+                            MinWindowWidth="433"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter
+                            Target="FormColumnDefinition.Width"
+                            Value="432"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState
+                    x:Name="Desktop">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger
+                            MinWindowWidth="961"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter
+                            Target="FormColumnDefinition.Width"
+                            Value="480"/>
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+        <Grid.RowDefinitions>
+            <RowDefinition
+                Height="Auto"/>
+            <RowDefinition
+                Height="1*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition
+                x:Name="FormLeftColumnDefinition"
+                Width="1*"/>
+            <ColumnDefinition
+                x:Name="FormColumnDefinition"
+                Width="1*"/>
+            <ColumnDefinition
+                x:Name="FormRightColumnDefinition"
+                Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock x:Name="textBlock"
+                   Margin="4,8,0,8"
+                   Grid.Row="0"
+                   Grid.Column="0"
+                   Grid.ColumnSpan="3"
+                   TextWrapping="Wrap"
+                   Text="Edit todo item"
+                   VerticalAlignment="Top"
+                   Style="{StaticResource HeaderTextBlockStyle}"/>
+        <ScrollViewer Margin="0,0,0,0"
+                      Grid.Row="1"
+                      Grid.Column="1"
+                      VerticalAlignment="Stretch"
+                      VerticalScrollBarVisibility="Hidden">
+            <StackPanel>
+                <Image
+                    x:Name="TodoCoverImage"
+                    Height="216"
+                    Stretch="UniformToFill" Source="Assets/anonymous_hoody.jpg"/>
+                <AppBarButton
+                    x:Name="SelectCoverButton"
+                    HorizontalAlignment="Right"
+                    Icon="BrowsePhotos"
+                    Label="Select cover"
+                    VerticalAlignment="Stretch"
+                    d:LayoutOverrides="Width"
+                    Click="SelectCoverButton_Click"/>
+                <TextBox
+                    x:Name="TitleTextBox"
+                    TextWrapping="Wrap" PlaceholderText="Todo title" Header="Title"/>
+                <TextBox
+                    x:Name="DetailTextBox"
+                    TextWrapping="Wrap"
+                    HorizontalAlignment="Stretch" PlaceholderText="Input todo detail" Height="96" Header="Detail" AcceptsReturn="True"/>
+                <DatePicker
+                    x:Name="TodoDatePicker"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    MaxWidth="Infinity" Header="Due date"/>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>
