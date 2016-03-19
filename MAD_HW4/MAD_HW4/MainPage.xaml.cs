@@ -1,24 +1,14 @@
 ﻿using MAD_HW4.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
+using System.Diagnostics;
+using Windows.ApplicationModel;
 using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
 
-// The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
-
-namespace MAD_HW4 {
+namespace MAD_HW4
+{
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
@@ -27,8 +17,9 @@ namespace MAD_HW4 {
         private Todo selectedItem = null;
 
         public MainPage() {
-            this.InitializeComponent();
-
+            InitializeComponent();
+            Application.Current.Resuming += App_Resuming;
+            Application.Current.Suspending += App_Suspending;
             ApplicationView.GetForCurrentView().SetPreferredMinSize(new Size(360, 120));
             SystemNavigationManager.GetForCurrentView().BackRequested += App_BackRequested;
             ListFrame.Navigate(typeof(ListPage));
@@ -57,6 +48,16 @@ namespace MAD_HW4 {
                 e.Handled = true;
                 GoBack();
             }
+        }
+
+        private void App_Resuming(object sender, object e)
+        {
+            Debug.WriteLine("App resume in mainpage");
+        }
+
+        private void App_Suspending(object sender, SuspendingEventArgs e)
+        {
+            Debug.WriteLine("App suspend in mainpage");
         }
 
         private void GoBack() {
