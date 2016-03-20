@@ -39,7 +39,9 @@ namespace MAD_HW4 {
         /// </summary>
         /// <param name="todo"></param>
         public void ChangeEditingTodoData(Todo todo) {
-            displayTodo = new Todo();
+            //TODO: Remove old image file
+            displayTodo = new Todo(false);
+            //TODO: Copy new file from passed todo id
             displayTodo.Title = todo.Title;
             displayTodo.Detail = todo.Detail;
             displayTodo.DueDate = todo.DueDate;

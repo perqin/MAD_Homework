@@ -3,13 +3,13 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Windows.Data.Json;
+using Windows.Foundation;
 using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 
-namespace MAD_HW4.ViewModels
-{
+namespace MAD_HW4.ViewModels {
 
     public class Todo : INotifyPropertyChanged {
         private string _id;
@@ -20,21 +20,23 @@ namespace MAD_HW4.ViewModels
         private string coverImageExt;
         private bool? done;
 
-        public void ReloadSource()
-        {
+        public void ReloadSource() {
             //TODO: Reload CoverSource using id and ext
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-            CoverSource = new BitmapImage(new Uri("ms-appx://MAD_HW4/Assets/default.png"));
+            string fileName = ID + "." + CoverImageExt;
+            localFolder.GetFileAsync(fileName).Completed = new AsyncOperationCompletedHandler<StorageFile>((IAsyncOperation<StorageFile> o, AsyncStatus s) => {
+                if (s == AsyncStatus.Completed) {
+                    //TODO
+                }
+            });
+
         }
 
-        public string ID
-        {
-            get
-            {
+        public string ID {
+            get {
                 return _id;
             }
-            private set
-            {
+            private set {
                 _id = value;
                 OnPropertyChanged();
             }
@@ -75,14 +77,11 @@ namespace MAD_HW4.ViewModels
                 OnPropertyChanged();
             }
         }
-        public string CoverImageExt
-        {
-            get
-            {
+        public string CoverImageExt {
+            get {
                 return coverImageExt;
             }
-            set
-            {
+            set {
                 coverImageExt = value;
             }
         }
@@ -96,18 +95,20 @@ namespace MAD_HW4.ViewModels
             }
         }
 
-        public Todo() {
+        public Todo(bool defaultProperties = true) {
             _id = Guid.NewGuid().ToString();
-            title = "New Todo";
-            detail = "Detail here...";
-            done = false;
-            coverSource = new BitmapImage(new Uri("ms-appx://MAD_HW4/Assets/default.png"));
-            coverImageExt = "png";
-            dueDate = DateTime.Today;
+            if (defaultProperties) {
+                title = "New Todo";
+                detail = "Detail here...";
+                done = false;
+                //coverSource = new BitmapImage(new Uri("ms-appx://MAD_HW4/Assets/default.png"));
+                coverImageExt = "";
+                dueDate = DateTime.Today;
+                ReloadSource();
+            }
         }
 
-        public void CloneFrom(Todo copy)
-        {
+        public void CloneFrom(Todo copy) {
             ID = copy.ID;
             Title = copy.Title;
             Detail = copy.Detail;
@@ -117,8 +118,7 @@ namespace MAD_HW4.ViewModels
             ReloadSource();
         }
 
-        public override string ToString()
-        {
+        public override string ToString() {
             JsonObject j = new JsonObject();
             j.Add("ID", JsonValue.CreateStringValue(ID));
             j.Add("Title", JsonValue.CreateStringValue(Title));
@@ -128,8 +128,7 @@ namespace MAD_HW4.ViewModels
             return j.Stringify();
         }
 
-        public void FromString(string data)
-        {
+        public void FromString(string data) {
             if (data == null) return;
             JsonObject j = JsonObject.Parse(data);
             ID = j["ID"].GetString();
@@ -164,14 +163,12 @@ namespace MAD_HW4.ViewModels
             return _instance;
         }
 
-        public void SaveToStorage()
-        {
+        public void SaveToStorage() {
             //TODO: ---Save to storage
             //FIXME: Do nothing, since local storage has not been implemented.
         }
 
-        public void LoadFromStorage()
-        {
+        public void LoadFromStorage() {
             //TODO: ---Load from storage
             //FIXME: Create fake Todo items, since local storage has not been implemented.
             _instance.addTodo(new Todo());

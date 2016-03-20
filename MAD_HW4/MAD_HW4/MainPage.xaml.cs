@@ -55,7 +55,6 @@ namespace MAD_HW4 {
                 }
                 EditFrame.Navigate(typeof(EditPage), ne.Parameter);
             };
-
         }
 
         private void App_Resuming(object sender, object e) {
