@@ -94,6 +94,21 @@ namespace MAD_HW4.ViewModels {
             return _instance;
         }
 
+        public void SaveToStorage()
+        {
+            //TODO: Save to storage
+        }
+
+        public void LoadFromStorage()
+        {
+            //TODO: Load from storage
+            //TODO: to be deleted
+            _instance.addTodo(new Todo());
+            _instance.addTodo(new Todo());
+            _instance.addTodo(new Todo());
+            _instance.addTodo(new Todo());
+        }
+
         public void addTodo(Todo todo) {
             todos.Add(todo);
         }

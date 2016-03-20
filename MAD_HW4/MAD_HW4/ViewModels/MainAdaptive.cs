@@ -44,6 +44,18 @@ namespace MAD_HW4.ViewModels
                 OnPropertyChanged();
             }
         }
+        public bool ShowEditFrame
+        {
+            get
+            {
+                return showEditFrame;
+            }
+            set
+            {
+                showEditFrame = value;
+                OnPropertyChanged();
+            }
+        }
         public ScreenWidthEnum ScreenWidth
         {
             get
@@ -71,9 +83,25 @@ namespace MAD_HW4.ViewModels
 
         public event PropertyChangedEventHandler PropertyChanged = delegate { };
 
+        public override string ToString()
+        {
+            //TODO: Convert it to string
+            return SelectedItemIndex.ToString();
+        }
+
+        public void FromString(string data)
+        {
+            //TODO: Convert it to VM
+            if (data != null)
+            {
+                SelectedItemIndex = int.Parse(data);
+            }
+        }
+
         private bool showNewButton = true;
         private bool showBackButton = false;
         private bool showSaveResetDeleteButton = false;
+        private bool showEditFrame = false;
         private ScreenWidthEnum screenWidth = ScreenWidthEnum.Wide;
         private int selectedItemIndex = -1;
 
@@ -95,6 +123,7 @@ namespace MAD_HW4.ViewModels
             ShowNewButton = ScreenWidth == ScreenWidthEnum.Wide || SelectedItemIndex == -1;
             ShowSaveResetDeleteButton = SelectedItemIndex != -1;
             ShowBackButton = ScreenWidth == ScreenWidthEnum.Narrow && SelectedItemIndex != -1;
+            ShowEditFrame = SelectedItemIndex != -1;
         }
     }
 

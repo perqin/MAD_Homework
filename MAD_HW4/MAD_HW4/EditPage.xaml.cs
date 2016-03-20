@@ -1,12 +1,12 @@
 ﻿using MAD_HW4.ViewModels;
 using System;
+using Windows.ApplicationModel;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
-
-// The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
 namespace MAD_HW4 {
     /// <summary>
@@ -23,8 +23,9 @@ namespace MAD_HW4 {
         }
 
         public EditPage() {
-            this.InitializeComponent();
-
+            InitializeComponent();
+            Application.Current.Resuming += App_Resuming;
+            Application.Current.Suspending += App_Suspending;
             TodoVM = TodoViewModel.getInstance();
         }
 
@@ -34,10 +35,9 @@ namespace MAD_HW4 {
             displayTodo.DueDate = todo.DueDate;
             displayTodo.Done = todo.Done;
             displayTodo.CoverSource = todo.CoverSource;
-            //RefreshView();
         }
 
-        private async void SelectCoverButton_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e) {
+        private async void SelectCoverButton_Click(object sender, RoutedEventArgs e) {
             FileOpenPicker picker = new FileOpenPicker();
             picker.ViewMode = PickerViewMode.Thumbnail;
             picker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
@@ -55,9 +55,14 @@ namespace MAD_HW4 {
             }
         }
 
-        //private void RefreshView()
-        //{
-        //
-        //}
+        private void App_Resuming(object sender, object e)
+        {
+            //TODO: Restore current edit
+        }
+
+        private void App_Suspending(object sender, SuspendingEventArgs e)
+        {
+            //TODO: Store current edit
+        }
     }
 }

@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using Windows.ApplicationModel;
 using Windows.Foundation;
+using Windows.Storage;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
@@ -13,64 +14,73 @@ namespace MAD_HW4
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
     public sealed partial class MainPage : Page {
+        private MainAdaptiveViewModel mainAdaptiveVM;
         private int selectedItemIndex = -1;
         private Todo selectedItem = null;
 
         public MainPage() {
             InitializeComponent();
+            mainAdaptiveVM = new MainAdaptiveViewModel();
             Application.Current.Resuming += App_Resuming;
             Application.Current.Suspending += App_Suspending;
             ApplicationView.GetForCurrentView().SetPreferredMinSize(new Size(360, 120));
             SystemNavigationManager.GetForCurrentView().BackRequested += App_BackRequested;
             ListFrame.Navigate(typeof(ListPage));
             EditFrame.Navigate(typeof(EditPage));
+            // Bind view adapter
+            mainAdaptiveVM.PropertyChanged += MainAdaptiveVM_PropertyChanged;
+        }
+        
+        private void MainAdaptiveVM_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            // Bind back button
+            SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility = mainAdaptiveVM.ShowBackButton
+                ? AppViewBackButtonVisibility.Visible : AppViewBackButtonVisibility.Collapsed;
         }
 
-        private bool CanGoBack {
+        /*private bool CanGoBack {
             get {
                 return EditFrame.Visibility == Visibility.Visible && Grid.GetColumn(EditFrame) == 0;
             }
-        }
-
-        private void DeleteButton_Click(object sender, RoutedEventArgs e) {
-            EditFrame.Visibility = Visibility.Collapsed;
-            GoBack();
-            if (selectedItemIndex >= 0) {
-                TodoViewModel.getInstance().Todos.RemoveAt(selectedItemIndex);
-            }
-        }
+        }*/
 
         private void App_BackRequested(object sender, BackRequestedEventArgs e) {
-            Frame rootFrame = Window.Current.Content as Frame;
-            if (rootFrame == null) return;
-
-            if (CanGoBack && e.Handled == false) {
-                e.Handled = true;
-                GoBack();
-            }
+            //Frame rootFrame = Window.Current.Content as Frame;
+            //if (rootFrame == null) return;
+            //
+            //if (CanGoBack && e.Handled == false) {
+            //    e.Handled = true;
+            GoBack();
+            //}
         }
 
         private void App_Resuming(object sender, object e)
         {
-            Debug.WriteLine("App resume in mainpage");
+            // Restore view states
+            mainAdaptiveVM.FromString(ApplicationData.Current.LocalSettings.Values["MainAdaptiveState"] as string);
         }
 
         private void App_Suspending(object sender, SuspendingEventArgs e)
         {
-            Debug.WriteLine("App suspend in mainpage");
+            // Store Todo list to storage
+            TodoViewModel.getInstance().SaveToStorage();
+            // Store view states
+            ApplicationData.Current.LocalSettings.Values["MainAdaptiveState"] = mainAdaptiveVM.ToString();
         }
 
         private void GoBack() {
-            Grid.SetColumn(EditFrame, 1);
-            UpdateButtons();
+            //Grid.SetColumn(EditFrame, 1);
+            mainAdaptiveVM.SelectedItemIndex = -1;
+            //UpdateButtons();
         }
 
         private void MainPage_SizeChanged(object sender, SizeChangedEventArgs e) {
-            UpdateButtons();
+            //UpdateButtons();
+            mainAdaptiveVM.ScreenWidth = e.NewSize.Width > 720 ? ScreenWidthEnum.Wide : ScreenWidthEnum.Narrow;
         }
 
-        private void UpdateButtons() {
-            SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility = CanGoBack
+        //private void UpdateButtons() {
+            /*SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility = CanGoBack
                 ? AppViewBackButtonVisibility.Visible
                 : AppViewBackButtonVisibility.Collapsed;
             SaveButton.Visibility = !CanGoBack && EditFrame.Visibility == Visibility.Collapsed
@@ -78,8 +88,8 @@ namespace MAD_HW4
                 : Visibility.Visible;
             ResetButton.Visibility = !CanGoBack && EditFrame.Visibility == Visibility.Collapsed
                 ? Visibility.Collapsed
-                : Visibility.Visible;
-        }
+                : Visibility.Visible;*/
+        //}
 
         public void OnTodoItemClick(object sender, ItemClickEventArgs e) {
             selectedItem = e.ClickedItem as Todo;
@@ -92,11 +102,12 @@ namespace MAD_HW4
             EditPage editPage = EditFrame.Content as EditPage;
             editPage.UpdateView(e.ClickedItem as Todo);
 
-            UpdateButtons();
+            mainAdaptiveVM.SelectedItemIndex = selectedItemIndex;
+            //UpdateButtons();
         }
 
         public void OnSelectionChanged(int index) {
-            DeleteButton.Visibility = index >= 0 ? Visibility.Visible : Visibility.Collapsed;
+            //DeleteButton.Visibility = index >= 0 ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void AddButton_Click(object sender, RoutedEventArgs e) {
@@ -109,14 +120,14 @@ namespace MAD_HW4
             ListPage listPage = ListFrame.Content as ListPage;
             listPage.setSelected(selectedItemIndex);
 
-            Frame rootFrame = Window.Current.Content as Frame;
-            Grid.SetColumn(EditFrame, rootFrame.ActualWidth > 720 ? 1 : 0);
-            EditFrame.Visibility = Visibility.Visible;
+            //Frame rootFrame = Window.Current.Content as Frame;
+            //Grid.SetColumn(EditFrame, rootFrame.ActualWidth > 720 ? 1 : 0);
+            //EditFrame.Visibility = Visibility.Visible;
 
             EditPage editPage = EditFrame.Content as EditPage;
             editPage.UpdateView(selectedItem);
 
-            UpdateButtons();
+            //UpdateButtons();
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e) {
@@ -135,6 +146,16 @@ namespace MAD_HW4
             editPage.DisplayTodo.DueDate = selectedItem.DueDate;
             editPage.DisplayTodo.CoverSource = selectedItem.CoverSource;
             editPage.DisplayTodo.Done = selectedItem.Done;
+        }
+
+        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            EditFrame.Visibility = Visibility.Collapsed;
+            GoBack();
+            if (selectedItemIndex >= 0)
+            {
+                TodoViewModel.getInstance().Todos.RemoveAt(selectedItemIndex);
+            }
         }
     }
 }
