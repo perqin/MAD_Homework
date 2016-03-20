@@ -1,19 +1,21 @@
 ﻿using MAD_HW4.ViewModels;
 using System;
 using Windows.ApplicationModel;
+using Windows.Data.Json;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
+using Windows.UI.Xaml.Navigation;
 
 namespace MAD_HW4 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
     public sealed partial class EditPage : Page {
-        private TodoViewModel TodoVM;
+        //private TodoViewModel TodoVM;
         private Todo displayTodo = new Todo();
 
         public Todo DisplayTodo {
@@ -22,18 +24,33 @@ namespace MAD_HW4 {
             }
         }
 
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            JsonObject parameters = JsonObject.Parse(e.Parameter as string);
+            if (parameters != null)
+            {
+                displayTodo.FromString(parameters["EditingTodoData"].GetString());
+            }
+        }
+
         public EditPage() {
             InitializeComponent();
             Application.Current.Resuming += App_Resuming;
             Application.Current.Suspending += App_Suspending;
-            TodoVM = TodoViewModel.getInstance();
+            //TodoVM = TodoViewModel.getInstance();
         }
 
-        public void UpdateView(Todo todo) {
+        /// <summary>
+        /// Change editing todo data without changing ID
+        /// </summary>
+        /// <param name="todo"></param>
+        public void ChangeEditingTodoData(Todo todo) {
+            displayTodo = new Todo();
             displayTodo.Title = todo.Title;
             displayTodo.Detail = todo.Detail;
             displayTodo.DueDate = todo.DueDate;
             displayTodo.Done = todo.Done;
+            displayTodo.CoverImageExt = todo.CoverImageExt;
             displayTodo.CoverSource = todo.CoverSource;
         }
 
@@ -57,12 +74,12 @@ namespace MAD_HW4 {
 
         private void App_Resuming(object sender, object e)
         {
-            //TODO: Restore current edit
+            ApplicationData.Current.LocalSettings.Values["EditingTodoData"] = displayTodo.ToString();
         }
 
         private void App_Suspending(object sender, SuspendingEventArgs e)
         {
-            //TODO: Store current edit
+            displayTodo.FromString(ApplicationData.Current.LocalSettings.Values["EditingTodoData"] as string);
         }
     }
 }

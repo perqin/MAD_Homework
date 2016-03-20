@@ -1,7 +1,10 @@
 ﻿using MAD_HW4.ViewModels;
 using System;
+using System.Collections;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
+using Windows.Data.Json;
+using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
@@ -42,6 +45,9 @@ namespace MAD_HW4
             TodoViewModel.getInstance().LoadFromStorage();
 
             Frame rootFrame = Window.Current.Content as Frame;
+            
+            JsonObject args = new JsonObject();
+            args.Add("Args", JsonValue.CreateStringValue(e.Arguments));
 
             // Do not repeat app initialization when the Window already has content,
             // just ensure that the window is active
@@ -55,6 +61,8 @@ namespace MAD_HW4
                 if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
                 {
                     // Load state from previously suspended application
+                    args.Add("MainAdaptiveState", JsonValue.CreateStringValue(ApplicationData.Current.LocalSettings.Values["MainAdaptiveState"] as string));
+                    args.Add("EditingTodoData", JsonValue.CreateStringValue(ApplicationData.Current.LocalSettings.Values["EditingTodoData"] as string));
                 }
 
                 // Place the frame in the current Window
@@ -66,7 +74,7 @@ namespace MAD_HW4
                 // When the navigation stack isn't restored navigate to the first page,
                 // configuring the new page by passing required information as a navigation
                 // parameter
-                rootFrame.Navigate(typeof(MainPage), e.Arguments);
+                rootFrame.Navigate(typeof(MainPage), args.Stringify());
             }
             // Ensure the current window is active
             Window.Current.Activate();

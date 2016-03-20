@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Windows.Data.Json;
 
 namespace MAD_HW4.ViewModels
 {
@@ -77,24 +78,34 @@ namespace MAD_HW4.ViewModels
             set
             {
                 selectedItemIndex = value;
+                OnPropertyChanged();
                 adapt();
             }
         }
 
         public event PropertyChangedEventHandler PropertyChanged = delegate { };
 
+        public MainAdaptiveViewModel()
+        {
+            selectedItemIndex = -1;
+            screenWidth = ScreenWidthEnum.Wide;
+        }
+
         public override string ToString()
         {
-            //TODO: Convert it to string
-            return SelectedItemIndex.ToString();
+            JsonObject j = new JsonObject();
+            j.Add("ScreenWidth", JsonValue.CreateNumberValue(ScreenWidth == ScreenWidthEnum.Narrow ? 0 : 1));
+            j.Add("SelectedItemIndex", JsonValue.CreateNumberValue(SelectedItemIndex));
+            return j.Stringify();
         }
 
         public void FromString(string data)
         {
-            //TODO: Convert it to VM
             if (data != null)
             {
-                SelectedItemIndex = int.Parse(data);
+                JsonObject j = JsonObject.Parse(data);
+                ScreenWidth = ((int)j["ScreenWidth"].GetNumber()) == 0 ? ScreenWidthEnum.Narrow : ScreenWidthEnum.Wide;
+                SelectedItemIndex = ((int)j["SelectedItemIndex"].GetNumber());
             }
         }
 
@@ -127,5 +138,5 @@ namespace MAD_HW4.ViewModels
         }
     }
 
-    public enum ScreenWidthEnum { Wide, Narrow };
+    public enum ScreenWidthEnum { Narrow, Wide };
 }
