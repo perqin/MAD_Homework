@@ -11,11 +11,7 @@ using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
 namespace MAD_HW4 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class EditPage : Page {
-        //private TodoViewModel TodoVM;
         private Todo displayTodo = new Todo();
 
         public Todo DisplayTodo {
@@ -24,12 +20,11 @@ namespace MAD_HW4 {
             }
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
-        {
+        protected override void OnNavigatedTo(NavigationEventArgs e) {
             JsonObject parameters = JsonObject.Parse(e.Parameter as string);
-            if (parameters != null)
-            {
-                displayTodo.FromString(parameters["EditingTodoData"].GetString());
+            if (parameters != null) {
+                if (parameters.ContainsKey("EditingTodoData"))
+                    displayTodo.FromString(parameters["EditingTodoData"].GetString());
             }
         }
 
@@ -37,7 +32,6 @@ namespace MAD_HW4 {
             InitializeComponent();
             Application.Current.Resuming += App_Resuming;
             Application.Current.Suspending += App_Suspending;
-            //TodoVM = TodoViewModel.getInstance();
         }
 
         /// <summary>
@@ -72,14 +66,12 @@ namespace MAD_HW4 {
             }
         }
 
-        private void App_Resuming(object sender, object e)
-        {
-            ApplicationData.Current.LocalSettings.Values["EditingTodoData"] = displayTodo.ToString();
+        private void App_Resuming(object sender, object e) {
+            displayTodo.FromString(ApplicationData.Current.LocalSettings.Values["EditingTodoData"] as string);
         }
 
-        private void App_Suspending(object sender, SuspendingEventArgs e)
-        {
-            displayTodo.FromString(ApplicationData.Current.LocalSettings.Values["EditingTodoData"] as string);
+        private void App_Suspending(object sender, SuspendingEventArgs e) {
+            ApplicationData.Current.LocalSettings.Values["EditingTodoData"] = displayTodo.ToString();
         }
     }
 }

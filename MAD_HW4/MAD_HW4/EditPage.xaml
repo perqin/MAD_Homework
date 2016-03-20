@@ -19,8 +19,8 @@
             <Image x:Name="CoverFullImage" Height="144" Stretch="UniformToFill" Source="{x:Bind displayTodo.CoverSource,Mode=OneWay}"/>
             <AppBarButton Icon="BrowsePhotos" Label="Select" HorizontalAlignment="Right" Click="SelectCoverButton_Click"/>
             <TextBox x:Name="TitleBox" Header="Title" Text="{x:Bind displayTodo.Title,Mode=TwoWay}"/>
-            <TextBox x:Name="DetailBox" Header="Detail" Text="{x:Bind displayTodo.Detail}" Height="96" AcceptsReturn="True"/>
-            <DatePicker x:Name="DueDateBox" Header="Due date" Date="{x:Bind displayTodo.DueDate,Converter={StaticResource DateTimeToOffsetConverter}}" MaxWidth="Infinity" MinWidth="0" HorizontalAlignment="Stretch"/>
+            <TextBox x:Name="DetailBox" Header="Detail" Text="{x:Bind displayTodo.Detail,Mode=TwoWay}" Height="96" AcceptsReturn="True"/>
+            <DatePicker x:Name="DueDateBox" Header="Due date" Date="{x:Bind displayTodo.DueDate,Mode=TwoWay,Converter={StaticResource DateTimeToOffsetConverter}}" MaxWidth="Infinity" MinWidth="0" HorizontalAlignment="Stretch"/>
         </StackPanel>
     </ScrollViewer>
 </Page>

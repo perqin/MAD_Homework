@@ -2,81 +2,61 @@
 using System.Runtime.CompilerServices;
 using Windows.Data.Json;
 
-namespace MAD_HW4.ViewModels
-{
+namespace MAD_HW4.ViewModels {
     /// <summary>
     /// Store view state data for MainPage.
     /// </summary>
-    public class MainAdaptiveViewModel : INotifyPropertyChanged
-    {
-        public bool ShowNewButton
-        {
-            get
-            {
+    public class MainAdaptiveViewModel : INotifyPropertyChanged {
+        public bool ShowNewButton {
+            get {
                 return showNewButton;
             }
-            set
-            {
+            set {
                 showNewButton = value;
                 OnPropertyChanged();
             }
         }
-        public bool ShowBackButton
-        {
-            get
-            {
+        public bool ShowBackButton {
+            get {
                 return showBackButton;
             }
-            set
-            {
+            set {
                 showBackButton = value;
                 OnPropertyChanged();
             }
         }
-        public bool ShowSaveResetDeleteButton
-        {
-            get
-            {
+        public bool ShowSaveResetDeleteButton {
+            get {
                 return showSaveResetDeleteButton;
             }
-            set
-            {
+            set {
                 showSaveResetDeleteButton = value;
                 OnPropertyChanged();
             }
         }
-        public bool ShowEditFrame
-        {
-            get
-            {
+        public bool ShowEditFrame {
+            get {
                 return showEditFrame;
             }
-            set
-            {
+            set {
                 showEditFrame = value;
                 OnPropertyChanged();
             }
         }
-        public ScreenWidthEnum ScreenWidth
-        {
-            get
-            {
+        public ScreenWidthEnum ScreenWidth {
+            get {
                 return screenWidth;
             }
-            set
-            {
+            set {
                 screenWidth = value;
                 adapt();
             }
         }
-        public int SelectedItemIndex
-        {
-            get
-            {
+        public int SelectedItemIndex {
+            get {
                 return selectedItemIndex;
             }
-            set
-            {
+            set {
                 selectedItemIndex = value;
                 OnPropertyChanged();
                 adapt();
@@ -85,24 +65,20 @@ namespace MAD_HW4.ViewModels
 
         public event PropertyChangedEventHandler PropertyChanged = delegate { };
 
-        public MainAdaptiveViewModel()
-        {
+        public MainAdaptiveViewModel() {
             selectedItemIndex = -1;
             screenWidth = ScreenWidthEnum.Wide;
         }
 
-        public override string ToString()
-        {
+        public override string ToString() {
             JsonObject j = new JsonObject();
             j.Add("ScreenWidth", JsonValue.CreateNumberValue(ScreenWidth == ScreenWidthEnum.Narrow ? 0 : 1));
             j.Add("SelectedItemIndex", JsonValue.CreateNumberValue(SelectedItemIndex));
             return j.Stringify();
         }
 
-        public void FromString(string data)
-        {
-            if (data != null)
-            {
+        public void FromString(string data) {
+            if (data != null) {
                 JsonObject j = JsonObject.Parse(data);
                 ScreenWidth = ((int)j["ScreenWidth"].GetNumber()) == 0 ? ScreenWidthEnum.Narrow : ScreenWidthEnum.Wide;
                 SelectedItemIndex = ((int)j["SelectedItemIndex"].GetNumber());
@@ -116,8 +92,7 @@ namespace MAD_HW4.ViewModels
         private ScreenWidthEnum screenWidth = ScreenWidthEnum.Wide;
         private int selectedItemIndex = -1;
 
-        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null) {
             PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
         }
 
@@ -129,8 +104,7 @@ namespace MAD_HW4.ViewModels
         /// reset btn       +	        -	            +	        -
         /// delete btn      +	        -	            +	        -
         /// back button     +	        -	            -	        -
-        private void adapt()
-        {
+        private void adapt() {
             ShowNewButton = ScreenWidth == ScreenWidthEnum.Wide || SelectedItemIndex == -1;
             ShowSaveResetDeleteButton = SelectedItemIndex != -1;
             ShowBackButton = ScreenWidth == ScreenWidthEnum.Narrow && SelectedItemIndex != -1;

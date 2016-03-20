@@ -9,9 +9,24 @@ namespace MAD_HW4 {
     public sealed partial class ListPage : Page {
         private TodoViewModel TodoVM;
 
-        public ListPage() {
-            this.InitializeComponent();
+        public int SelectedItemIndex {
+            get {
+                return TodoListView.SelectedIndex;
+            }
+            set {
+                if (value < TodoListView.Items.Count) {
+                    if (value == -1) {
+                        //(TodoListView.SelectedItem as ListViewItem).IsSelected = false;
+                        TodoListView.SelectedItem = null;
+                    } else {
+                        TodoListView.SelectedIndex = value;
+                    }
+                }
+            }
+        }
 
+        public ListPage() {
+            InitializeComponent();
             TodoVM = TodoViewModel.getInstance();
         }
 
@@ -19,16 +34,6 @@ namespace MAD_HW4 {
             Frame rootFrame = Window.Current.Content as Frame;
             MainPage mainPage = rootFrame.Content as MainPage;
             mainPage.OnSelectionChanged(TodoListView.SelectedIndex);
-        }
-
-        private void TodoListView_ItemClick(object sender, ItemClickEventArgs e) {
-            Frame rootFrame = Window.Current.Content as Frame;
-            MainPage mainPage = rootFrame.Content as MainPage;
-            mainPage.OnTodoItemClick(sender, e);
-        }
-
-        public void setSelected(int i) {
-            TodoListView.SelectedIndex = i;
         }
     }
 }
