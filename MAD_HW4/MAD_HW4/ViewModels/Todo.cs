@@ -2,20 +2,43 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Windows.Data.Json;
+using Windows.Storage;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 
-namespace MAD_HW4.ViewModels {
+namespace MAD_HW4.ViewModels
+{
 
     public class Todo : INotifyPropertyChanged {
+        private string _id;
         private string title;
         private string detail;
         private DateTime dueDate;
         private ImageSource coverSource;
+        private string coverImageExt;
         private bool? done;
 
+        public void ReloadSource()
+        {
+            //TODO: Reload CoverSource using id and ext
+            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+            CoverSource = new BitmapImage(new Uri("ms-appx://MAD_HW4/Assets/default.png"));
+        }
+
+        public string ID
+        {
+            get
+            {
+                return _id;
+            }
+            private set
+            {
+                _id = value;
+                OnPropertyChanged();
+            }
+        }
         public string Title {
             get {
                 return title;
@@ -52,6 +75,17 @@ namespace MAD_HW4.ViewModels {
                 OnPropertyChanged();
             }
         }
+        public string CoverImageExt
+        {
+            get
+            {
+                return coverImageExt;
+            }
+            set
+            {
+                coverImageExt = value;
+            }
+        }
         public bool? Done {
             get {
                 return done;
@@ -63,11 +97,47 @@ namespace MAD_HW4.ViewModels {
         }
 
         public Todo() {
+            _id = Guid.NewGuid().ToString();
             title = "New Todo";
             detail = "Detail here...";
             done = false;
-            coverSource = new BitmapImage(new Uri("ms-appx://MAD_HW3/Assets/default.png"));
+            coverSource = new BitmapImage(new Uri("ms-appx://MAD_HW4/Assets/default.png"));
+            coverImageExt = "png";
             dueDate = DateTime.Today;
+        }
+
+        public void CloneFrom(Todo copy)
+        {
+            ID = copy.ID;
+            Title = copy.Title;
+            Detail = copy.Detail;
+            DueDate = copy.DueDate;
+            CoverImageExt = copy.CoverImageExt;
+            Done = copy.Done;
+            ReloadSource();
+        }
+
+        public override string ToString()
+        {
+            JsonObject j = new JsonObject();
+            j.Add("ID", JsonValue.CreateStringValue(ID));
+            j.Add("Title", JsonValue.CreateStringValue(Title));
+            j.Add("Detail", JsonValue.CreateStringValue(Detail));
+            j.Add("Done", JsonValue.CreateBooleanValue(Done ?? false));
+            j.Add("DueDate", JsonValue.CreateNumberValue((int)((DueDate - new DateTime(1970, 1, 1)).TotalSeconds)));
+            return j.Stringify();
+        }
+
+        public void FromString(string data)
+        {
+            if (data == null) return;
+            JsonObject j = JsonObject.Parse(data);
+            ID = j["ID"].GetString();
+            Title = j["Title"].GetString();
+            Detail = j["Detail"].GetString();
+            Done = j["Done"].GetBoolean();
+            DueDate = new DateTime(1970, 1, 1).AddSeconds(j["DueDate"].GetNumber());
+            ReloadSource();
         }
 
         public event PropertyChangedEventHandler PropertyChanged = delegate { };
@@ -94,46 +164,24 @@ namespace MAD_HW4.ViewModels {
             return _instance;
         }
 
+        public void SaveToStorage()
+        {
+            //TODO: ---Save to storage
+            //FIXME: Do nothing, since local storage has not been implemented.
+        }
+
+        public void LoadFromStorage()
+        {
+            //TODO: ---Load from storage
+            //FIXME: Create fake Todo items, since local storage has not been implemented.
+            _instance.addTodo(new Todo());
+            _instance.addTodo(new Todo());
+            _instance.addTodo(new Todo());
+            _instance.addTodo(new Todo());
+        }
+
         public void addTodo(Todo todo) {
             todos.Add(todo);
-        }
-    }
-
-    /// <summary>
-    /// Boolean to Visibility converter
-    /// </summary>
-    /// <seealso cref="https://github.com/jamesmcroft/WinUX-UWP-Toolkit/blob/master/Croft.Core/Croft.Core.UWP/Xaml/Converters/BooleanToVisibilityConverter.cs"/>
-    public class BooleanToVisibilityConverter : IValueConverter {
-        /// <summary>
-        /// Converts a bool value to a Visibility value.
-        /// </summary>
-        /// <returns>
-        /// Returns Visibility.Visible if true, else Visibility.Collapsed.
-        /// </returns>
-        public object Convert(object value, Type targetType, object parameter, string language) {
-            var b = value as bool?;
-            return b == null ? Visibility.Collapsed : (b.Value ? Visibility.Visible : Visibility.Collapsed);
-        }
-
-        /// <summary>
-        /// Converts a Visibility value to a bool value.
-        /// </summary>
-        /// <returns>
-        /// Returns true if Visiblility.Visible, else false.
-        /// </returns>
-        public object ConvertBack(object value, Type targetType, object parameter, string language) {
-            var v = value as Visibility?;
-            return v == null ? (object)null : v.Value == Visibility.Visible;
-        }
-    }
-
-    public class DateTimeToOffsetConverter : IValueConverter {
-        public object Convert(object value, Type targetType, object parameter, string language) {
-            return (DateTimeOffset)((value as DateTime?) ?? DateTime.Today);
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, string language) {
-            return ((value as DateTimeOffset?) ?? DateTimeOffset.Now).DateTime;
         }
     }
 }

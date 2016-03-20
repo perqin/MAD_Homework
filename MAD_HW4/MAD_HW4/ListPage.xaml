@@ -4,12 +4,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:MAD_HW4"
     xmlns:vm="using:MAD_HW4.ViewModels"
+    xmlns:utils="using:MAD_HW4.Utils"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
     <Page.Resources>
-        <vm:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <utils:BooleanToVisibilityConverter x:Key="B2VConverter"/>
     </Page.Resources>
 
     <ListView
@@ -51,7 +52,7 @@
                         <CheckBox IsChecked="{x:Bind Done,Mode=TwoWay}" Grid.Column="0" MinWidth="0" MinHeight="0" HorizontalAlignment="Center"/>
                         <Image x:Name="CoverSmallImage" Source="{x:Bind CoverSource,Mode=OneWay}" Grid.Column="1" Width="84"/>
                         <TextBlock Text="{x:Bind Title,Mode=OneWay}" Grid.Column="2" VerticalAlignment="Center" Margin="8,0"/>
-                        <Line Visibility="{x:Bind Done,Converter={StaticResource BooleanToVisibilityConverter},Mode=OneWay}" Grid.Column="2" StrokeThickness="2" Stretch="Fill" VerticalAlignment="Center" Stroke="Black" X2="1" Margin="8,0"/>
+                        <Line Visibility="{x:Bind Done,Converter={StaticResource B2VConverter},Mode=OneWay}" Grid.Column="2" StrokeThickness="2" Stretch="Fill" VerticalAlignment="Center" Stroke="Black" X2="1" Margin="8,0"/>
                     </Grid>
                 </UserControl>
             </DataTemplate>
