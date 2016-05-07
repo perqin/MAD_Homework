@@ -3,6 +3,7 @@
 #include "ui/UILoadingBar.h"
 #include "GameScene.h"
 #include "Utils.h"
+#include "MenuItemLabel2c.h"
 
 USING_NS_CC;
 
@@ -21,18 +22,20 @@ bool GameScene::init() {
 	auto vs = Director::getInstance()->getVisibleSize();
 	auto o = Director::getInstance()->getVisibleOrigin();
 	
-	// There will be 4 layers: Background, Game, Indicator, Control
-	// Background
-	auto backgroundLayer = Layer::create();
-	backgroundLayer->setAnchorPoint(Vec2(0, 0));
-	backgroundLayer->setPosition(o.x, o.y);
-	auto background = Sprite::create("game-background.jpg");
-	background->setPosition(o.x + vs.width / 2, o.y + vs.height / 2);
-	backgroundLayer->addChild(background);
-	this->addChild(backgroundLayer, 0);
+	// There will be 4 layers: Map, Game, Indicator, Control
+
+	// Map
+	tmx = TMXTiledMap::create("game_map.tmx");
+	tmx->setPosition(o.x + vs.width / 2, o.y + vs.height / 2);
+	tmx->setAnchorPoint(Vec2(0.5, 0.5));
+	addChild(tmx, 0);
+	TMXObjectGroup * objects = tmx->getObjectGroup("objects");
+	ValueMap container = objects->getObject("stair");
+	stair.x = container["centerX"].asFloat();
+	stair.y = vs.height - container["centerY"].asFloat();
 	
 	// Game
-	auto gameLayer = Layer::create();
+	gameLayer = Layer::create();
 	gameLayer->setAnchorPoint(Vec2(0, 0));
 	gameLayer->setPosition(o.x, o.y);
 	this->addChild(gameLayer, 1);
@@ -40,11 +43,6 @@ bool GameScene::init() {
 	player = Sprite::createWithSpriteFrameName("character-r-0.png");
 	player->setPosition(o.x + vs.width / 2, o.y + vs.height / 2);
 	gameLayer->addChild(player);
-    // Cure and Suicide
-    cure = Sprite::createWithSpriteFrameName("cure-0.png");
-    gameLayer->addChild(cure);
-    suicide = Sprite::createWithSpriteFrameName("suicide-0.png");
-    gameLayer->addChild(suicide);
 
 	// Indicators
 	auto indicatorsLayer = Layer::create();
@@ -65,30 +63,26 @@ bool GameScene::init() {
     add1s->setPosition(-100, -100);
     indicatorsLayer->addChild(add1s);
 
-	// Control
-	auto controlLayer = Layer::create();
-	controlLayer->setAnchorPoint(Vec2(0, 0));
-	controlLayer->setPosition(o.x, o.y);
-	this->addChild(controlLayer, 3);
-	// Buttons
-	char buttonKeys[6][2] = { "U", "D", "L", "R", "J", "K" };
-	float buttonPos[6][2] = {
+    // New control layer with menu
+    auto controlLayer = Menu::create();
+    controlLayer->setPosition(o.x, o.y);
+    addChild(controlLayer, 3);
+    // Control buttons
+	char buttonKeys[5][2] = { "W", "S", "A", "D", "J" };
+	float buttonPos[5][2] = {
 		{ o.x + 108, o.y + 108 + 72 },
 		{ o.x + 108, o.y + 108 - 72 },
 		{ o.x + 108 - 72, o.y + 108 },
         { o.x + 108 + 72, o.y + 108 },
-        { o.x + vs.width - 72 - 20, o.y + 72 - 20 },
-        { o.x + vs.width - 72 + 20, o.y + 72 + 20 }
+        { o.x + vs.width - 108, o.y + 108 }
 	};
-    ui::Button * button;
-    for (int i = 0; i < 6; ++i) {
-        button = ui::Button::create();
-        button->setPosition(Vec2(buttonPos[i][0], buttonPos[i][1]));
-        button->setTitleText(buttonKeys[i]);
-        button->setTitleFontSize(48);
-        button->setTitleFontName("fonts/Transformers Movie.ttf");
-        button->addTouchEventListener(CC_CALLBACK_2(GameScene::buttonTouched, this, buttonKeys[i][0]));
-        controlLayer->addChild(button);
+    MenuItemLabel2c * controlButton;
+    Label *  controlButtonLabel;
+    for (int i = 0; i < 5; ++i) {
+        controlButtonLabel = Label::createWithTTF(buttonKeys[i], "fonts/Transformers Movie.ttf", 48, Size::ZERO, TextHAlignment::CENTER, TextVAlignment::CENTER);
+        controlButton = MenuItemLabel2c::create(controlButtonLabel, CC_CALLBACK_1(GameScene::controlButtonPressed, this, buttonKeys[i][0]), CC_CALLBACK_1(GameScene::controlButtonReleased, this, buttonKeys[i][0]));
+        controlButton->setPosition(buttonPos[i][0], buttonPos[i][1]);
+        controlLayer->addChild(controlButton);
     }
 
     // Menu layer
@@ -104,6 +98,8 @@ bool GameScene::init() {
     // Timer schedule
     time = 180;
     schedule(schedule_selector(GameScene::updateTimer), 1, CC_REPEAT_FOREVER, 0);
+	schedule(schedule_selector(GameScene::monsterGenerater), 5, CC_REPEAT_FOREVER, 3);
+	scheduleUpdate();
 
     // HP
     hp = 100;
@@ -126,66 +122,126 @@ void GameScene::updateTimer(float delta) {
 
 void GameScene::handleControl(const char key) {
     Animate * animate;
+    Action * moveAction, * animateAction;
     char animationName[32];
 	switch (key) {
-    case 'U':
+    case 'W':
+    case 'S':
+    case 'A':
     case 'D':
-    case 'L':
-    case 'R':
+        player->stopAllActionsByTag(ACTION_STOP_AT_RELEASE);
         sprintf(animationName, "Player%cAnimation", key);
         animate = Animate::create(AnimationCache::getInstance()->getAnimation(animationName));
-        player->runAction(RepeatForever::create(MoveBy::create(1.0f / 60, playerMoveBy(key))));
-        player->runAction(RepeatForever::create(animate));
+        moveAction = RepeatForever::create(MoveBy::create(1.0f / 60, playerMoveBy(key)));
+        moveAction->setTag(ACTION_STOP_AT_RELEASE);
+        animateAction = RepeatForever::create(animate);
+        animateAction->setTag(ACTION_STOP_AT_RELEASE);
+        player->runAction(moveAction);
+        player->runAction(animateAction);
         break;
     case 'J':
-        animate = Animate::create(AnimationCache::getInstance()->getAnimation("CureAnimation"));
-        cure->setPosition(player->getPosition());
-        cure->runAction(Sequence::create(Spawn::create(Show::create(), animate, NULL), Hide::create(), NULL));
-        hp += 10;
-        if (hp > 100) hp = 100;
-        hpBar->setPercent(hp);
-        // Easter eggs
-        add1s->setPosition(Vec2(player->getPositionX(), player->getPositionY() + 36));
-        add1s->setOpacity(255);
-        add1s->runAction(Spawn::create(FadeOut::create(1), MoveBy::create(1, Vec2(0, 48)), NULL));
-        break;
-    case 'K':
-        animate = Animate::create(AnimationCache::getInstance()->getAnimation("SuicideAnimation"));
-        suicide->setPosition(player->getPosition());
-        suicide->runAction(Sequence::create(Spawn::create(Show::create(), animate, NULL), Hide::create(), NULL));
-        hp -= 10;
-        if (hp < 0) hp = 0;
-        hpBar->setPercent(hp);
+		playerAttack();
         break;
 	default:
 		break;
 	}
 }
 
-void GameScene::buttonTouched(Ref * sender, cocos2d::ui::Widget::TouchEventType tet, const char key) {
-    switch (tet) {
-    case cocos2d::ui::Widget::TouchEventType::BEGAN:
-        handleControl(key);
-        break;
-    case cocos2d::ui::Widget::TouchEventType::ENDED:
-        player->stopAllActions();
-        break;
-    default:
-        break;
-    }
-}
-
 Vec2 GameScene::playerMoveBy(const char key) {
     switch (key) {
-    case 'U':
+    case 'W':
         return Vec2(0, 4);
-    case 'D':
+    case 'S':
         return Vec2(0, -4);
-    case 'L':
+    case 'A':
         return Vec2(-4, 0);
-    case 'R':
+    case 'D':
         return Vec2(4, 0);
     default:
         return Vec2::ZERO;
     }
+}
+
+void GameScene::controlButtonPressed(cocos2d::Ref * sender, const char key) {
+    handleControl(key);
+}
+
+void GameScene::controlButtonReleased(cocos2d::Ref * sender, const char key) {
+    player->stopAllActionsByTag(ACTION_STOP_AT_RELEASE);
+}
+
+void GameScene::monsterGenerater(float delta) {
+    Vec2 monsterLocation;
+    do {
+        monsterLocation.x = RandomHelper::random_real(Director::getInstance()->getVisibleOrigin().x, Director::getInstance()->getVisibleOrigin().x + Director::getInstance()->getVisibleSize().width);
+        monsterLocation.y = RandomHelper::random_real(Director::getInstance()->getVisibleOrigin().y, Director::getInstance()->getVisibleOrigin().y + Director::getInstance()->getVisibleSize().height);
+	} while (fabs(monsterLocation.x - player->getPositionX()) <= player->getContentSize().width / 2 + SpriteFrameCache::getInstance()->getSpriteFrameByName("monster.png")->getRect().size.width / 2
+		&& fabs(monsterLocation.y - player->getPositionY()) <= player->getContentSize().height / 2 + SpriteFrameCache::getInstance()->getSpriteFrameByName("monster.png")->getRect().size.height / 2);
+	auto monster = Sprite::createWithSpriteFrameName("monster.png");
+	monster->setPosition(monsterLocation);
+	monster->setTag(SPRITE_MONSTER);
+	gameLayer->addChild(monster);
+}
+
+void GameScene::update(float delta) {
+	// Check goback
+	if (player->getBoundingBox().containsPoint(stair)) {
+		backToMainScene(this);
+		return;
+	}
+	// Check player be attacked
+	Vector<Node *>::iterator m;
+	auto ms = gameLayer->getChildren();
+	for (m = ms.begin(); m != ms.end(); ++m) {
+		if ((*m)->getTag() == SPRITE_MONSTER) {
+			if (player->getBoundingBox().intersectsRect((*m)->getBoundingBox())) {
+				// Player be attacked
+				playerBeAttacked(*m);
+			} else {
+				// Move monster
+				auto direction = player->getPosition() - (*m)->getPosition();
+				(*m)->runAction(MoveBy::create(delta, (direction / direction.length()) * 60 * delta));
+			}
+		}
+	}
+}
+
+void GameScene::playerAttack() {
+	// Find nearest monster
+	Vector<Node *>::iterator m;
+	auto ms = gameLayer->getChildren();
+	float minLengthSquared = Vec2(Director::getInstance()->getVisibleSize().width, Director::getInstance()->getVisibleSize().height).lengthSquared();
+	Node * nearestNode = nullptr;
+	for (m = ms.begin(); m != ms.end(); ++m) {
+		if ((*m)->getTag() == SPRITE_MONSTER && ((*m)->getPosition() - player->getPosition()).lengthSquared() < minLengthSquared) {
+			minLengthSquared = ((*m)->getPosition() - player->getPosition()).lengthSquared();
+			nearestNode = *m;
+		}
+	}
+	if (nearestNode == nullptr) return;
+	// Show thunder
+	auto animate = Animate::create(AnimationCache::getInstance()->getAnimation("SuicideAnimation"));
+	auto thunder = Sprite::createWithSpriteFrameName("suicide-0.png");
+	thunder->setPosition(nearestNode->getPosition());
+	thunder->runAction(Sequence::create(Spawn::create(Show::create(), animate, NULL), Hide::create(), NULL));
+	gameLayer->addChild(thunder);
+	// Remove monster
+	nearestNode->runAction(Sequence::create(FadeOut::create(0.3f), CallFuncN::create([](Node * n) {
+		n->getParent()->removeChild(n);
+	}), NULL));
+	// Get HP back
+	hp += 10;
+	if (hp > 100) hp = 100;
+	hpBar->setPercent(hp);
+}
+
+void GameScene::playerBeAttacked(cocos2d::Node * attacker) {
+	attacker->setTag(SPRITE_MONSTER_DEAD);
+	attacker->runAction(Sequence::create(FadeOut::create(0.3f), CallFuncN::create([](Node * n) {
+		n->getParent()->removeChild(n);
+	}), NULL));
+	player->runAction(Repeat::create(Sequence::create(FadeOut::create(0.18f), FadeIn::create(0.18f), NULL), 3));
+	hp -= 10;
+	if (hp < 1) hp = 1;
+	hpBar->setPercent(hp);
 }

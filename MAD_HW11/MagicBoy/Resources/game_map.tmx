@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="32" tileheight="32" nextobjectid="9">
+ <tileset firstgid="1" name="Heaven" tilewidth="32" tileheight="32" tilecount="232" columns="8">
+  <image source="033-Heaven02.png" width="256" height="928"/>
+ </tileset>
+ <layer name="块层 1" width="30" height="20">
+  <data encoding="base64" compression="zlib">
+   eJw7xMDAcGgUD1t8aoAw4wjFTHgwtdWg20uM26ihZtTegbF3MKUrdDOpoWbU3oGxdyDS1UjBAO5pdMI=
+  </data>
+ </layer>
+ <layer name="块层 2" width="30" height="20">
+  <data encoding="base64" compression="zlib">
+   eJztzbsKg0AQQNH9dRVjHhjzQE2lVkmqmErzMWqV+B25YLMsLGyhVnPhFMsMs0pNFShRqXmz3Y2wxR0PPBFio83MtwcfgcOu7W6CE16o8UaMozYz3zvscXDYtd3NcUODFh+kyLSZ+T7jgqvDru2utFwdegwr//vFD+PK/0qSJEnu/QFQiz08
+  </data>
+ </layer>
+ <objectgroup name="objects">
+  <object id="8" name="stair" x="888.5" y="200" width="46.75" height="38.25" centerX="911.875" centerY="119.125"/>
+ </objectgroup>
+</map>

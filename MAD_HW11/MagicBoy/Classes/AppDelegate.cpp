@@ -66,6 +66,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
 	register_all_packages();
 
 	// Load game resource
+    SpriteFrameCache::getInstance()->addSpriteFrame(SpriteFrame::create("monster.png", Rect(0, 0, 48, 72)), "monster.png");
 	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("player-sheet.plist");
 	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("cure-sheet.plist");
 	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("suicide-sheet.plist");
@@ -74,6 +75,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
 	// For player
 	char animationName[32];
 	char directions[4] = { 'u', 'd', 'l', 'r' };
+	char directionsOnKB[4] = { 'W', 'S', 'A', 'D' };
 	for (int i = 0; i < 4; ++i) {
 		animation[i] = Animation::create();
 		for (int j = 0; j < 4; ++j) {
@@ -81,7 +83,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
 			animation[i]->addSpriteFrame(SpriteFrameCache::getInstance()->getSpriteFrameByName(frameName));
 		}
 		animation[i]->setDelayPerUnit(0.1f);
-		sprintf(animationName, "Player%cAnimation", directions[i] - 32);
+		sprintf(animationName, "Player%cAnimation", directionsOnKB[i]);
 		AnimationCache::getInstance()->addAnimation(animation[i], animationName);
 	}
     // For cure
