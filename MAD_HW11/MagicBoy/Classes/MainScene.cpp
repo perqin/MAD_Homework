@@ -41,7 +41,7 @@ bool MainScene::init() {
 
 void MainScene::startGameCallback(Ref * pSender) {
 	auto gameScene = GameScene::createScene();
-	Director::getInstance()->pushScene(gameScene);
+	Director::getInstance()->pushScene(TransitionFade::create(0.5, gameScene));
 }
 
 void MainScene::quitGameCallback(Ref * pSender) {

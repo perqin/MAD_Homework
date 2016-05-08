@@ -104,6 +104,55 @@ bool GameScene::init() {
     // HP
     hp = 100;
 
+	// Keyboard handler
+	auto keyListener = EventListenerKeyboard::create();
+	auto thisScene = this;
+	keyListener->onKeyPressed = [thisScene](EventKeyboard::KeyCode keyCode, Event * vnt) {
+		switch (keyCode) {
+		case cocos2d::EventKeyboard::KeyCode::KEY_W:
+			thisScene->handleControl('W');
+			break;
+		case cocos2d::EventKeyboard::KeyCode::KEY_S:
+			thisScene->handleControl('S');
+			break;
+		case cocos2d::EventKeyboard::KeyCode::KEY_A:
+			thisScene->handleControl('A');
+			break;
+		case cocos2d::EventKeyboard::KeyCode::KEY_D:
+			thisScene->handleControl('D');
+			break;
+		case cocos2d::EventKeyboard::KeyCode::KEY_J:
+			thisScene->handleControl('J');
+			break;
+		default:
+			break;
+		}
+	};
+	keyListener->onKeyReleased = [thisScene](EventKeyboard::KeyCode keyCode, Event * vnt) {
+		switch (keyCode) {
+		case cocos2d::EventKeyboard::KeyCode::KEY_W:
+			thisScene->releaseControl('W');
+			break;
+		case cocos2d::EventKeyboard::KeyCode::KEY_S:
+			thisScene->releaseControl('S');
+			break;
+		case cocos2d::EventKeyboard::KeyCode::KEY_A:
+			thisScene->releaseControl('A');
+			break;
+		case cocos2d::EventKeyboard::KeyCode::KEY_D:
+			thisScene->releaseControl('D');
+			break;
+		case cocos2d::EventKeyboard::KeyCode::KEY_J:
+			thisScene->releaseControl('J');
+			break;
+		default:
+			break;
+		}
+	};
+	this->_eventDispatcher->addEventListenerWithSceneGraphPriority(keyListener, this);
+
+	keyState = 0;
+
 	return true;
 }
 
@@ -120,30 +169,72 @@ void GameScene::updateTimer(float delta) {
     }
 }
 
-void GameScene::handleControl(const char key) {
-    Animate * animate;
-    Action * moveAction, * animateAction;
-    char animationName[32];
+unsigned int GameScene::getKeyFromChar(const char key) {
 	switch (key) {
-    case 'W':
-    case 'S':
-    case 'A':
-    case 'D':
-        player->stopAllActionsByTag(ACTION_STOP_AT_RELEASE);
-        sprintf(animationName, "Player%cAnimation", key);
-        animate = Animate::create(AnimationCache::getInstance()->getAnimation(animationName));
-        moveAction = RepeatForever::create(MoveBy::create(1.0f / 60, playerMoveBy(key)));
-        moveAction->setTag(ACTION_STOP_AT_RELEASE);
-        animateAction = RepeatForever::create(animate);
-        animateAction->setTag(ACTION_STOP_AT_RELEASE);
-        player->runAction(moveAction);
-        player->runAction(animateAction);
-        break;
-    case 'J':
+	case 'W':
+		return KEY_W;
+	case 'S':
+		return KEY_S;
+	case 'A':
+		return KEY_A;
+	case 'D':
+		return KEY_D;
+	default:
+		return 0;
+	}
+}
+
+void GameScene::handleControl(const char key) {
+	Animate * animate;
+	Action * moveAction, *animateAction;
+	char animationName[32];
+	switch (key) {
+	case 'W':
+	case 'S':
+	case 'A':
+	case 'D':
+		SETBIT(keyState, getKeyFromChar(key));
+		player->stopAllActionsByTag(ACTION_STOP_AT_RELEASE);
+		sprintf(animationName, "Player%cAnimation", key);
+		animate = Animate::create(AnimationCache::getInstance()->getAnimation(animationName));
+		moveAction = RepeatForever::create(MoveBy::create(1.0f / 60, playerMoveBy(key)));
+		moveAction->setTag(ACTION_STOP_AT_RELEASE);
+		animateAction = RepeatForever::create(animate);
+		animateAction->setTag(ACTION_STOP_AT_RELEASE);
+		player->runAction(moveAction);
+		player->runAction(animateAction);
+		break;
+	case 'J':
+		SETBIT(keyState, KEY_J);
 		playerAttack();
-        break;
+		break;
 	default:
 		break;
+	}
+}
+
+void GameScene::releaseControl(const char key) {
+	switch (key) {
+	case 'W':
+		UNSETBIT(keyState, KEY_W);
+		break;
+	case 'S':
+		UNSETBIT(keyState, KEY_S);
+		break;
+	case 'A':
+		UNSETBIT(keyState, KEY_A);
+		break;
+	case 'D':
+		UNSETBIT(keyState, KEY_D);
+		break;
+	case 'J':
+		UNSETBIT(keyState, KEY_J);
+		break;
+	default:
+		break;
+	}
+	if (keyState == 0) {
+		player->stopAllActionsByTag(ACTION_STOP_AT_RELEASE);
 	}
 }
 
@@ -167,7 +258,7 @@ void GameScene::controlButtonPressed(cocos2d::Ref * sender, const char key) {
 }
 
 void GameScene::controlButtonReleased(cocos2d::Ref * sender, const char key) {
-    player->stopAllActionsByTag(ACTION_STOP_AT_RELEASE);
+	releaseControl(key);
 }
 
 void GameScene::monsterGenerater(float delta) {
@@ -185,7 +276,8 @@ void GameScene::monsterGenerater(float delta) {
 
 void GameScene::update(float delta) {
 	// Check goback
-	if (player->getBoundingBox().containsPoint(stair)) {
+	Rect r = player->getBoundingBox();
+	if (r.containsPoint(stair)) {
 		backToMainScene(this);
 		return;
 	}
