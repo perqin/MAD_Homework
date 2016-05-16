@@ -21,10 +21,13 @@
     <ClCompile Include="..\Classes\GameScene.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\HomeScene.cpp">
+    <ClCompile Include="..\Classes\C.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\C.cpp">
+    <ClCompile Include="..\Classes\EnemyBeAttackedEventData.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\EnemyHitPlayerEventData.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -35,9 +38,6 @@
     <ClInclude Include="..\Classes\AppDelegate.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\Classes\HomeScene.h">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="..\Classes\GameScene.h">
       <Filter>src</Filter>
     </ClInclude>
@@ -45,6 +45,12 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="..\Classes\Utils.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\EnemyBeAttackedEventData.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\EnemyHitPlayerEventData.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

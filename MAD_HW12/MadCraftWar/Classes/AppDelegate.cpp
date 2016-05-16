@@ -47,7 +47,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     director->setDisplayStats(true);
 
     // set FPS. the default value is 1.0/60 if you don't call this
-    director->setAnimationInterval(1.0 / 60);
+    director->setAnimationInterval(1.0f / 60);
 
     // Set the design resolution
     glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height, ResolutionPolicy::NO_BORDER);
@@ -64,6 +64,24 @@ bool AppDelegate::applicationDidFinishLaunching() {
     }
 
     register_all_packages();
+
+	// Load game resource
+	//SpriteFrameCache::getInstance()->addSpriteFrame(SpriteFrame::create("monster.png", Rect(0, 0, 48, 72)), "monster.png");
+	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("game-sheet.plist");
+	// Explosion animation
+	char frameName[64];
+	Animation * animation = Animation::create();
+	for (int i = 0; i < 15; ++i) {
+		sprintf(frameName, "explosion-%d.png", i);
+		animation->addSpriteFrame(SpriteFrameCache::getInstance()->getSpriteFrameByName(frameName));
+	}
+	animation->setDelayPerUnit(0.1f);
+	AnimationCache::getInstance()->addAnimation(animation, "ExplosionAnimation");
+
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadBackgroundMusic("background.mp3");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("fire.wav");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("explosion.wav");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("hurt.wav");
 
     // create a scene. it's an autorelease object
     auto scene = GameScene::createScene();
