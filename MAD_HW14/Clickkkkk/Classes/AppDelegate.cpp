@@ -1,4 +1,5 @@
 #include "AppDelegate.h"
+#include "HomeScene.h"
 #include "GameScene.h"
 
 USING_NS_CC;
@@ -41,8 +42,16 @@ bool AppDelegate::applicationDidFinishLaunching() {
 
     FileUtils::getInstance()->addSearchPath("res");
 
-    // create a scene. it's an autorelease object
-    auto scene = GameScene::createScene();
+	// Load resource
+	SpriteFrameCache::getInstance()->addSpriteFrame(SpriteFrame::create("button.png", Rect(0, 0, 480, 480)), "button.png");
+	SpriteFrameCache::getInstance()->addSpriteFrame(SpriteFrame::create("button-down.png", Rect(0, 0, 480, 480)), "button-down.png");
+
+	Scene * scene;
+	if (UserDefault::getInstance()->getStringForKey("SID").size() > 0) {
+		scene = GameScene::createScene();
+	} else {
+		scene = HomeScene::createScene();
+	}
 
     // run
     director->runWithScene(scene);
